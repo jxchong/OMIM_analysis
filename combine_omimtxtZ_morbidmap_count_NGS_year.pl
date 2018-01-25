@@ -30,10 +30,6 @@ if (!defined $morbidmap) {
 } 
 
 
-# perl parse_morbidmap.pl --in raw_download_2014-02-20/morbidmap --out morbidmap.parsed.txt
-# perl parse_omimtxtZ_count_NGS.pl --in raw_download_2014-02-20/omim.txt.Z --out omimtxtZ.parsed.NGS.txt
-# perl combine_omimtxtZ_morbidmap_count_NGS.pl --morbidmap morbidmap.parsed.txt --mim2gene raw_download_2014-02-20/mim2gene.txt --omimtxt omimtxtZ.parsed.NGS.txt --out combinedOMIM.mentionsNGS.txt
- 
 
 # store phenotype MIM and gene MIM info
 my $MIM_ref = {};
@@ -86,6 +82,9 @@ sub read_mim2gene {
 	<$input_handle>;
 	while ( <$input_handle> ) {
 		$_ =~ s/\s+$//;					# Remove line endings
+        if ($_ =~ /^#/) {
+            next;
+        }
 		my ($MIMnum, $Type, $GeneIDs, $ApprovedGeneSymbols) = split("\t", $_);
 		if ($Type ne 'moved/removed' && $Type ne 'gene') {
 			$MIM_ref->{$MIMnum}{'Type'} = $Type;

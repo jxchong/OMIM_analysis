@@ -40,7 +40,10 @@ print $output_handle "phenoname\tphenoMIMnum\tphenoMappingKey\tLocusSymbols\tGen
 open (my $input_handle, "$inputfile") or die "Cannot read $inputfile: $!.\n";
 while ( <$input_handle> ) {
 	$_ =~ s/\s+$//;					# Remove line endings
-	my ($phenoname, $locussymbol, $locusMIM, $cytoloc) = split(/\|/, $_);
+    if ($_ =~ /^#/) {
+        next;
+    }
+	my ($phenoname, $locussymbol, $locusMIM, $cytoloc) = split(/\t/, $_);
 	my ($phenoMIM, $phenomappingkey) = qw(NA -9);
 	
 	if ($phenoname =~ m/(\d{6})/) {

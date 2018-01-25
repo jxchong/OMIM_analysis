@@ -31,60 +31,81 @@
 #
 # Braces, "{ }", indicate mutations that contribute to susceptibility to multifactorial disorders (e.g., diabetes, asthma) or to susceptibility to infection (e.g., malaria).
 
+args <- commandArgs(trailingOnly=TRUE)
+if (length(args) == 0) {
+	stop("Need datestamp argument\n", call.=FALSE)
+} else {
+	datestamp <- paste0("", args[1])
+}
+
+# datestamp <- "../2016-04-11"
 
 library(RColorBrewer)
 colors <- brewer.pal(12, "Set3")
 
-datestamp <- "../2015-10-27"
 
 combined <- read.table(paste0(datestamp,".combinedOMIM.mentionsNGS.year.txt"), head=TRUE, sep="\t", comment.char="", quote="")
-
-nrow(combined)
+# nrow(combined)
+cat(nrow(combined), "phenotypes", "\n")
 # [1] 8776 phenotypes
 
 combined.iscomplex <- subset(combined, isComplex=="yes")
-nrow(combined.iscomplex)
+# nrow(combined.iscomplex)
+cat(nrow(combined.iscomplex), "are complex phenotypes", "\n")
 # [1] 1217 are complex phenotypes
 
 combined.iscancer <- subset(combined, isComplex=="cancer")
-nrow(combined.iscancer)
+# nrow(combined.iscancer)
 # [1] 121 are cancer phenotypes
 
 combined.isnotcomplex <- subset(combined, isComplex!="yes"&isComplex!="cancer")
-nrow(combined.isnotcomplex)
+# nrow(combined.isnotcomplex)
 # [1] 7438 are not complex and not cancer
+cat(nrow(combined.isnotcomplex), "are not complex and not cancer", "\n")
+
 
 combined.ischromosomal <- subset(combined, phenomappingkey==4)
-nrow(combined.ischromosomal)
+# nrow(combined.ischromosomal)
+cat(nrow(combined.ischromosomal), "are chromosomal", "\n")
 # [1] 125
 
 combined.nocomplex.nochrom <- subset(combined.isnotcomplex, phenomappingkey!=4)
-nrow(combined.nocomplex.nochrom)
+# nrow(combined.nocomplex.nochrom)
+cat(nrow(combined.nocomplex.nochrom), "are not complex or chromosomal", "\n")
 # [1] 7315
 
 combined.nocomplex.nochrom.3 <- subset(combined.nocomplex.nochrom, phenomappingkey==3)
-nrow(combined.nocomplex.nochrom.3)
+# nrow(combined.nocomplex.nochrom.3)
+cat(nrow(combined.nocomplex.nochrom.3), "explained phenotypes", "\n")
 # [1] 4163 explained phenotypes
 
-length(unique(combined.nocomplex.nochrom.3$geneMIMnum))
-# [1] 2937 unique genes explaining phenotypes
-
 combined.nocomplex.nochrom.not3 <- subset(combined.nocomplex.nochrom, phenomappingkey!=3)
-nrow(combined.nocomplex.nochrom.not3)
+# nrow(combined.nocomplex.nochrom.not3)
+cat(nrow(combined.nocomplex.nochrom.not3), "unexplained phenotypes", "\n")
 # [1] 3152 unexplained phenotypes
 
 combined.nocomplex.nochrom.not3.mapping2 <- subset(combined.nocomplex.nochrom, phenomappingkey==2)
-nrow(combined.nocomplex.nochrom.not3.mapping2)
+# nrow(combined.nocomplex.nochrom.not3.mapping2)
+cat(nrow(combined.nocomplex.nochrom.not3.mapping2), "unexplained phenotypes mapped by linkage/etc", "\n")
 # [1] 643 unexplained phenotypes mapped by linkage/etc
 
-
+# length(unique(combined.nocomplex.nochrom.3$geneMIMnum))
+cat(length(unique(combined.nocomplex.nochrom.3$geneMIMnum)), "unique genes explain a Mendelian phenotype", "\n")
+# [1] 2937 unique genes explaining phenotypes
 
 write.table(subset(combined.nocomplex.nochrom.3), file=paste0(datestamp,".OMIM.phenotypecategories.explained.txt"), quote=FALSE, row.names=FALSE, sep="\t")
 write.table(subset(combined.nocomplex.nochrom.not3), file=paste0(datestamp,".OMIM.phenotypecategories.unexplained.txt"), quote=FALSE, row.names=FALSE, sep="\t")
 
 
 
+nphenopergene <- table(table(combined.nocomplex.nochrom.3$geneMIMnum))
 
+pdf(paste0(datestamp,".OMIM number of genes vs npheno - barplot.pdf"), width=10, height=5)
+x.pos <- barplot(nphenopergene, col=colors[10], xlab="number of Mendelian phenotypes", ylab="number of genes", border=NA)
+text(x.pos, nphenopergene, labels=nphenopergene, xpd=TRUE, pos=3, cex=0.8, offset=0.1)
+dev.off()
 
+cat(nphenopergene, "number of phenotypes per gene", "\n")
+cat(sum(nphenopergene[2:length(nphenopergene)]), "genes with >=2 phenotypes","\n")
 
 

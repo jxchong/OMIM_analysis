@@ -40,11 +40,16 @@ my $MGtxt_paragraph = '';
 my ($mimnum, $mimtitle);
 
 my $input_handle;
-if ($inputfile =~ /\.Z$/) {
-	open ($input_handle, "zcat $inputfile |") or die "Cannot read $inputfile: $!.\n";	
-} else {
-	open ($input_handle, "$inputfile") or die "Cannot read $inputfile: $!.\n";
-}
+# if ($inputfile =~ /\.Z$|\.gz$/) {
+    # open ($input_handle, "zcat $inputfile |") or die "Cannot read $inputfile: $!.\n";
+# } else {
+    # open ($input_handle, "$inputfile") or die "Cannot read $inputfile: $!.\n";
+# }
+
+
+open ($input_handle, "zless $inputfile |") or die "Cannot read $inputfile: $!.\n";
+
+
 while ( my $readline = <$input_handle> ) {
     # print STDERR "readline = $readline\t";
 	if ($readline =~ /^\*RECORD\*/ && $inrecord == 1) {
